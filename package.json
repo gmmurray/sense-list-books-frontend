@@ -1,7 +1,9 @@
 {
   "name": "sense-list-books-frontend",
   "version": "1.0.0",
+  "author": "https://gregmurray.org",
   "private": true,
+  "license": "ISC",
   "dependencies": {
     "@auth0/auth0-react": "^1.2.0",
     "@hookform/resolvers": "^1.3.4",
