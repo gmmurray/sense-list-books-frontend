@@ -37,10 +37,13 @@ const UserListCard: FC<UserListCardProps> = ({ userList }) => {
     readingProgress,
     bookListItems.length,
   );
-  const latestProgressDate = (userListItems as BULI[]).reduce((a, b) =>
-    new Date(a.updatedAt) > new Date(b.updatedAt) ? a : b,
-  ).updatedAt;
-  const formattedLastProgress = dateFormat(latestProgressDate, 'longDate');
+  const latestProgressDate = userListItems.length
+    ? (userListItems as BULI[]).reduce((a, b) =>
+        new Date(a.updatedAt) > new Date(b.updatedAt) ? a : b,
+      ).updatedAt
+    : null;
+  const formattedLastProgress =
+    latestProgressDate && dateFormat(latestProgressDate, 'longDate');
   const formattedListUpdated = dateFormat(listUpdatedAt, 'longDate');
 
   return (
@@ -75,10 +78,12 @@ const UserListCard: FC<UserListCardProps> = ({ userList }) => {
             </Grid.Column>
           </Grid>
           <Grid columns="two" padded>
-            <Grid.Column>
-              <Header sub content="Last progress" />
-              {formattedLastProgress}
-            </Grid.Column>
+            {formattedLastProgress && (
+              <Grid.Column>
+                <Header sub content="Last progress" />
+                {formattedLastProgress}
+              </Grid.Column>
+            )}
             <Grid.Column>
               <Header sub content="List updated" />
               {formattedListUpdated}
