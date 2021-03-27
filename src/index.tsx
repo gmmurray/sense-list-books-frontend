@@ -12,11 +12,13 @@ import alertOptions from './library/constants/alertOptions';
 
 import 'semantic-ui-css/semantic.min.css';
 
+const auth0Credentials = getAuth0Credentials();
+
 ReactDOM.render(
   <Auth0Provider
-    domain={getAuth0Credentials().domain}
-    clientId={getAuth0Credentials().clientId}
-    audience={getAuth0Credentials().audience}
+    domain={auth0Credentials.domain}
+    clientId={auth0Credentials.clientId}
+    audience={auth0Credentials.audience}
     redirectUri={window.location.origin}
     useRefreshTokens={true}
   >
