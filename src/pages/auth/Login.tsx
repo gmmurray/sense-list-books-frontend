@@ -10,11 +10,6 @@ type LoginType = { from?: string };
 const Login: FC<LoginType> = ({ from }) => {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
 
-  const onLoginClick = () => {
-    console.log('env variable: ' + process.env.REACT_APP_AUTH0_DOMAIN);
-    loginWithRedirect();
-  };
-
   if (isAuthenticated) {
     return <Redirect to={appRoutes.home.index.path} />;
   }
@@ -23,7 +18,7 @@ const Login: FC<LoginType> = ({ from }) => {
       <Grid.Column textAlign="center" style={{ maxWidth: 450 }}>
         <Segment>
           <Image src={Logo} fluid /> <Header>Get started</Header>
-          <Button onClick={onLoginClick} primary>
+          <Button onClick={loginWithRedirect} primary>
             Login or register
           </Button>
         </Segment>
