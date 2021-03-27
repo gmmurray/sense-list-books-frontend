@@ -1,9 +1,3 @@
-enum envTypes {
-  dev = 'development',
-  prod = 'production',
-  test = 'test',
-}
-
 type auth0Credentials = { domain: string; clientId: string; audience: string };
 
 export const getAuth0Credentials = (): auth0Credentials => ({
