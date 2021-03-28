@@ -213,10 +213,10 @@ const ViewList = () => {
       </Fragment>
     );
   } else if (list) {
-    const newItemOrdinal =
-      (list.bookListItems as BookListItem[]).sort(
-        (a, b) => a.ordinal - b.ordinal,
-      )[list.bookListItems.length - 1].ordinal + 1;
+    const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
+      (a, b) => a.ordinal - b.ordinal,
+    )[list.bookListItems.length - 1]?.ordinal;
+    const newItemOrdinal = (lastOrdinal || -1) + 1;
     return (
       <Fragment>
         <BreadcrumbWrapper breadcrumbs={appRoutes.lists.view.breadcrumbs!} />
@@ -295,8 +295,12 @@ const ViewList = () => {
           header="Confirm"
           content={
             itemToBeDeleted
-              ? `Are you sure you want to remove ${itemToBeDeleted.title} by ${itemToBeDeleted.authors}?
-                This will completely remove any progress associated with this book for you and any other users`
+              ? `Are you sure you want to remove ${itemToBeDeleted.title}${
+                  itemToBeDeleted.authors
+                    ? ' by ' + itemToBeDeleted.authors
+                    : ''
+                }
+                ? This will completely remove any progress associated with this book for you and any other users`
               : undefined
           }
         />
