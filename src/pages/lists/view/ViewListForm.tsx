@@ -18,7 +18,6 @@ type ViewListFormProps = {
   onSubmit: any;
   onReset: any;
   onDelete: any;
-  deleteLoading: boolean;
 };
 
 const ViewListForm: FC<ViewListFormProps> = ({
@@ -31,7 +30,6 @@ const ViewListForm: FC<ViewListFormProps> = ({
   onSubmit,
   onReset,
   onDelete,
-  deleteLoading,
 }) => {
   return (
     <Form size="big" onSubmit={onSubmit} error={!!error} loading={loading}>
@@ -77,13 +75,7 @@ const ViewListForm: FC<ViewListFormProps> = ({
         <Fragment>
           <Button type="submit" icon="check" content="Save" color="green" />
           <Button onClick={onReset} content="Reset" icon="redo" />
-          <Button
-            onClick={onDelete}
-            content="Delete"
-            negative
-            icon="times"
-            loading={deleteLoading}
-          />
+          <Button onClick={onDelete} content="Delete" negative icon="times" />
         </Fragment>
       )}
       <Message error header="Error" content={error} />

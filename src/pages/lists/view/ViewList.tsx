@@ -143,6 +143,7 @@ const ViewList = () => {
   );
 
   const handleListDeletion = useCallback(async () => {
+    setListDeletionConfirmOpen(false);
     setListDeletionLoading(true);
     try {
       await listsApi.deleteList(auth, listId);
@@ -244,7 +245,10 @@ const ViewList = () => {
     return (
       <Fragment>
         <BreadcrumbWrapper breadcrumbs={appRoutes.lists.view.breadcrumbs!} />
-        <Segment color={isEditingForm ? 'green' : undefined}>
+        <Segment
+          color={isEditingForm ? 'green' : undefined}
+          loading={listDeletionLoading}
+        >
           {hasEditPermission && (
             <div>
               <Button
@@ -271,7 +275,6 @@ const ViewList = () => {
             onSubmit={handleSubmit(handleFormSubmit)}
             onReset={handleFormReset}
             onDelete={handleListDeletionClick}
-            deleteLoading={listDeletionLoading}
           />
           <Divider horizontal>
             <Header as="h4">
