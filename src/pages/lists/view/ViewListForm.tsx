@@ -17,6 +17,8 @@ type ViewListFormProps = {
   formControl: Control<IEditListInputs>;
   onSubmit: any;
   onReset: any;
+  onDelete: any;
+  deleteLoading: boolean;
 };
 
 const ViewListForm: FC<ViewListFormProps> = ({
@@ -28,6 +30,8 @@ const ViewListForm: FC<ViewListFormProps> = ({
   formControl,
   onSubmit,
   onReset,
+  onDelete,
+  deleteLoading,
 }) => {
   return (
     <Form size="big" onSubmit={onSubmit} error={!!error} loading={loading}>
@@ -72,7 +76,14 @@ const ViewListForm: FC<ViewListFormProps> = ({
       {active && (
         <Fragment>
           <Button type="submit" icon="check" content="Save" color="green" />
-          <Button onClick={onReset}>Reset</Button>
+          <Button onClick={onReset} content="Reset" icon="redo" />
+          <Button
+            onClick={onDelete}
+            content="Delete"
+            negative
+            icon="times"
+            loading={deleteLoading}
+          />
         </Fragment>
       )}
       <Message error header="Error" content={error} />

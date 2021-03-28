@@ -40,6 +40,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
           visible={navOpen}
           width="wide"
           fixed="left"
+          size="massive"
         >
           <Menu.Item as="a" onClick={() => setNavOpen(false)}>
             <Icon name="close" />
@@ -66,6 +67,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
             active={location.pathname === appRoutes.lists.new.path}
             to={appRoutes.lists.new.path}
           >
+            <Icon name="plus" />
             New List
           </Menu.Item>
           <Menu.Item

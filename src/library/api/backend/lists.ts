@@ -65,3 +65,14 @@ export const updateList = async (
     data,
   });
 };
+
+export const deleteList = async (
+  authContext: Auth0ContextInterface,
+  listId: string,
+): Promise<void> => {
+  return await authenticatedRequest({
+    authContext,
+    method: 'DELETE',
+    url: `${listsRoute}/${listId}`,
+  });
+};

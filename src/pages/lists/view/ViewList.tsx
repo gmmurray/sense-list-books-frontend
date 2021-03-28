@@ -3,7 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useAlert } from 'react-alert';
 import { useForm } from 'react-hook-form';
-import { Link, Redirect, useParams } from 'react-router-dom';
+import { Link, Redirect, useHistory, useParams } from 'react-router-dom';
 import arrayMove from 'array-move';
 import {
   Segment,
@@ -41,6 +41,7 @@ type ViewListParams = {
 const ViewList = () => {
   const auth = useAuth0();
   const alert = useAlert();
+  let history = useHistory();
   const { listId } = useParams<ViewListParams>();
   const [list, setList] = useState<BookList | null>(null);
   const [listLoading, setListLoading] = useState(true);
@@ -60,6 +61,9 @@ const ViewList = () => {
     ListItemOrdinalUpdate[]
   >([]);
   const [ordinalChangesLoading, setOrdinalChangesLoading] = useState(false);
+
+  const [listDeletionLoading, setListDeletionLoading] = useState(false);
+  const [listDeletionConfirmOpen, setListDeletionConfirmOpen] = useState(false);
 
   const { handleSubmit, errors, control, reset } = useForm<IEditListInputs>({
     resolver: yupResolver(editListSchema),
@@ -129,6 +133,26 @@ const ViewList = () => {
     },
     [getListData, setItemDeletionLoading, auth, alert],
   );
+
+  const handleListDeletionClick = useCallback(
+    e => {
+      e.preventDefault();
+      setListDeletionConfirmOpen(true);
+    },
+    [setListDeletionConfirmOpen],
+  );
+
+  const handleListDeletion = useCallback(async () => {
+    setListDeletionLoading(true);
+    try {
+      await listsApi.deleteList(auth, listId);
+      setListDeletionLoading(false);
+      history.push(appRoutes.progress.start.path);
+    } catch (error) {
+      alert.error(error.message, defaultErrorTimeout);
+      setListDeletionLoading(false);
+    }
+  }, [alert, auth, history, listId]);
 
   const handleItemSort = useCallback(
     ({ oldIndex, newIndex }: onSortEndParams) => {
@@ -246,6 +270,8 @@ const ViewList = () => {
             formControl={control}
             onSubmit={handleSubmit(handleFormSubmit)}
             onReset={handleFormReset}
+            onDelete={handleListDeletionClick}
+            deleteLoading={listDeletionLoading}
           />
           <Divider horizontal>
             <Header as="h4">
@@ -303,6 +329,15 @@ const ViewList = () => {
                 ? This will completely remove any progress associated with this book for you and any other users`
               : undefined
           }
+        />
+        <Confirm
+          open={listDeletionConfirmOpen}
+          onCancel={() => setListDeletionConfirmOpen(false)}
+          onConfirm={() => handleListDeletion()}
+          cancelButton="Nevermind"
+          confirmButton="Yes"
+          header="Confirm list delete"
+          content="Are you sure you want to delete this list? This will also delete any progress you or anyone else has with it."
         />
       </Fragment>
     );
