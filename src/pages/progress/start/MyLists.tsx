@@ -32,7 +32,7 @@ const MyLists: FC<MyListsProps> = ({ loading, data }) => {
   const usePlaceholder = showEmptyResult || visibleLists.length === 0;
   return (
     <Fragment>
-      <Menu borderless attached="top">
+      <Menu borderless attached="top" stackable>
         <Menu.Item>
           <Button
             icon="plus"

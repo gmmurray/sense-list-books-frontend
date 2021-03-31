@@ -31,7 +31,7 @@ const ActiveLists: FC<ActiveListsProps> = ({ loading, data }) => {
   }
   return (
     <Fragment>
-      <Menu attached="top" borderless>
+      <Menu attached="top" borderless stackable>
         <Menu.Item position="left">
           <Button
             icon="plus"
