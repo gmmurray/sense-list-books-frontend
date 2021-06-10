@@ -55,7 +55,7 @@ const AllUserLists: FC<AllUserListsProps> = ({
 
   return (
     <Fragment>
-      <Menu attached="top" borderless>
+      <Menu attached="top" borderless stackable>
         <Menu.Item>
           <Button
             icon="plus"
