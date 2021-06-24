@@ -19,6 +19,7 @@ import {
   updateListItemOrdinals,
 } from 'src/library/api/backend/listItems';
 import * as listsApi from 'src/library/api/backend/lists';
+import * as usersApi from 'src/library/api/backend/users';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import { BookList } from 'src/library/entities/list/BookList';
@@ -33,6 +34,7 @@ import {
   UpdateListItemOrdinalsDto,
 } from 'src/library/entities/listItem/ListItem';
 import { onSortEndParams } from 'src/library/types/reactSortableHoc';
+import { UserProfile } from 'src/library/entities/user/UserProfile';
 
 type ViewListParams = {
   listId: string;
@@ -52,11 +54,12 @@ const ViewList = () => {
   const [isEditingOrdinals, setIsEditingOrdinals] = useState(false);
   const [itemDeletionLoading, setItemDeletionLoading] = useState(false);
   const [itemDeletionConfirmOpen, setItemDeletionConfirmOpen] = useState(false);
-  const [itemToBeDeleted, setItemToBeDeleted] = useState<{
-    id: string;
-    title: string;
-    authors: string;
-  } | null>(null);
+  const [itemToBeDeleted, setItemToBeDeleted] =
+    useState<{
+      id: string;
+      title: string;
+      authors: string;
+    } | null>(null);
   const [itemOrdinalChanges, setItemOrdinalChanges] = useState<
     ListItemOrdinalUpdate[]
   >([]);
@@ -64,6 +67,9 @@ const ViewList = () => {
 
   const [listDeletionLoading, setListDeletionLoading] = useState(false);
   const [listDeletionConfirmOpen, setListDeletionConfirmOpen] = useState(false);
+
+  const [ownerProfile, setOwnerProfile] = useState<UserProfile | null>(null);
+  const [ownerProfileLoading, setOwnerProfileLoading] = useState(false);
 
   const { handleSubmit, errors, control, reset } = useForm<IEditListInputs>({
     resolver: yupResolver(editListSchema),
@@ -80,6 +86,18 @@ const ViewList = () => {
       setListLoading(false);
     }
   }, [setListLoading, setList, alert, auth, listId]);
+
+  const getOwnerProfile = useCallback(async () => {
+    setOwnerProfileLoading(true);
+    try {
+      const data = await usersApi.getUserProfile(auth, list!.ownerId);
+      setOwnerProfile(data);
+    } catch (error) {
+      alert.error(error.message, defaultErrorTimeout);
+    } finally {
+      setOwnerProfileLoading(false);
+    }
+  }, [setOwnerProfileLoading, list, setOwnerProfile, alert, auth]);
 
   const handleFormSubmit = useCallback(
     async (data: IEditListInputs) => {
@@ -215,6 +233,10 @@ const ViewList = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (list?.ownerId && !ownerProfile) getOwnerProfile();
+  }, [list]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const hasEditPermission = auth.user && auth.user.sub === list?.ownerId;
   const excludedBookIds =
     list && list.bookListItems
@@ -272,6 +294,9 @@ const ViewList = () => {
             error={updateError}
             formErrors={errors}
             formControl={control}
+            ownerProfile={ownerProfile}
+            ownerProfileLoading={ownerProfileLoading}
+            userIsOwner={hasEditPermission}
             onSubmit={handleSubmit(handleFormSubmit)}
             onReset={handleFormReset}
             onDelete={handleListDeletionClick}

@@ -26,12 +26,15 @@ import { truncateString } from 'src/library/utilities/bookPropertyHelpers';
 import { appRoutes } from 'src/main/routes';
 import * as userListApi from 'src/library/api/backend/userLists';
 import * as buliApi from 'src/library/api/backend/buli';
+import * as usersApi from 'src/library/api/backend/users';
 import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import { BookReadingStatus } from 'src/library/types/BookReadingStatus';
 import ViewUserListBooks from './ViewUserListBooks';
 import { BookListItem } from 'src/library/entities/listItem/BookListItem';
 import { ItemMatch } from 'src/library/types/ItemMatch';
+import { UserProfile } from 'src/library/entities/user/UserProfile';
+import UserProfilePopup from 'src/library/components/users/UserProfilePopup';
 
 type ViewUserListParams = { userListId: string };
 
@@ -48,19 +51,20 @@ const ViewUserList = () => {
 
   const [visibleBuli, setVisibleBuli] = useState<BULI[]>([]);
 
-  const [buliCreateLoading, setBuliCreateLoading] = useState<string | null>(
-    null,
-  );
+  const [buliCreateLoading, setBuliCreateLoading] =
+    useState<string | null>(null);
 
-  const [buliUpdateLoading, setBuliUpdateLoading] = useState<string | null>(
-    null,
-  );
+  const [buliUpdateLoading, setBuliUpdateLoading] =
+    useState<string | null>(null);
   const [buliUpdates, setBuliUpdates] = useState<Record<string, PatchBULIDto>>(
     {},
   );
 
   const [noteUpdate, setNoteUpdate] = useState<string | null>(null); // set when loading user list
   const [noteUpdateLoading, setNoteUpdateLoading] = useState(false);
+
+  const [ownerProfile, setOwnerProfile] = useState<UserProfile | null>(null);
+  const [ownerProfileLoading, setOwnerProfileLoading] = useState(false);
 
   const getUserListData = useCallback(async () => {
     setUserListLoading(true);
@@ -87,6 +91,18 @@ const ViewUserList = () => {
       setUserListLoading(false);
     }
   }, [setUserListLoading, auth, userListId, alert]);
+
+  const getOwnerProfile = useCallback(async () => {
+    setOwnerProfileLoading(true);
+    try {
+      const data = await usersApi.getUserProfile(auth, userList!.list!.ownerId);
+      setOwnerProfile(data);
+    } catch (error) {
+      alert.error(error.message, defaultErrorTimeout);
+    } finally {
+      setOwnerProfileLoading(false);
+    }
+  }, [setOwnerProfileLoading, userList, setOwnerProfile, alert, auth]);
 
   useEffect(() => {
     if (userList) {
@@ -235,6 +251,10 @@ const ViewUserList = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (userList?.list?.ownerId && !ownerProfile) getOwnerProfile();
+  }, [userList]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!userListId) {
     return <Redirect to={appRoutes.progress.start.path} />;
   } else if (userListLoading) {
@@ -257,13 +277,16 @@ const ViewUserList = () => {
 
     const hasEditListPermission = list.ownerId === auth.user.sub;
 
-    const matchedItems: ItemMatch[] = (list.bookListItems as BookListItem[]).map(
-      item => ({
-        book: item,
-        userItem:
-          visibleBuli.find(buli => buli.bookListItem === item.id) || null,
-      }),
-    );
+    const matchedItems: ItemMatch[] = (
+      list.bookListItems as BookListItem[]
+    ).map(item => ({
+      book: item,
+      userItem: visibleBuli.find(buli => buli.bookListItem === item.id) || null,
+    }));
+
+    const isOwnProfile =
+      hasEditListPermission && auth.user.sub === ownerProfile?.authId;
+
     return (
       <Fragment>
         <BreadcrumbWrapper breadcrumbs={appRoutes.progress.view.breadcrumbs!} />
@@ -287,8 +310,18 @@ const ViewUserList = () => {
           <Grid columns={2} stackable>
             <Grid.Row>
               <Grid.Column>
-                <Header sub>By</Header>
-                <span>{list.ownerId}</span>
+                {!ownerProfileLoading && !!ownerProfile && (
+                  <>
+                    <Header sub>By</Header>
+                    <UserProfilePopup
+                      profile={ownerProfile}
+                      root={
+                        // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                        <a>{isOwnProfile ? 'Me' : ownerProfile.username}</a>
+                      }
+                    />
+                  </>
+                )}
               </Grid.Column>
               <Grid.Column>
                 <Header sub>Category</Header>
