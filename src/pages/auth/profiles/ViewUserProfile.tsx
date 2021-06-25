@@ -45,10 +45,6 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
     }
   }, [alert, auth, userId]);
 
-  const updateProfile = useCallback(updates => {
-    return console.log(updates);
-  }, []);
-
   useEffect(() => {
     if (userId) getUserProfile();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
