@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useAlert } from 'react-alert';
 import { useForm } from 'react-hook-form';
 import { Link, Redirect, useHistory, useParams } from 'react-router-dom';
