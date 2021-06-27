@@ -5,16 +5,14 @@ import { useAlert } from 'react-alert';
 import { Button, Container, Header, Menu, Transition } from 'semantic-ui-react';
 import * as usersApi from 'src/library/api/backend/users';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
+import { ACTIVE_LISTS_COUNT } from 'src/library/constants/activity';
 import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
-import { RecentActivity } from 'src/library/entities/user/RecentActivity';
+import { UserProfile } from 'src/library/entities/user/UserProfile';
 import { BookUserList } from 'src/library/entities/userList/BookUserList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 import { appRoutes } from 'src/main/routes';
 import ActiveLists from './ActiveLists';
-import RecentUserActivity from './recentActivity/RecentUserActivity';
-
-const ACTIVE_LISTS_COUNT = 3;
-const RECENT_ACTIVITY_COUNT = 5;
+import RecentUserActivity from 'src/library/components/users/recentActivity/RecentUserActivity';
 
 const Home = () => {
   const auth = useAuth0();
@@ -27,10 +25,9 @@ const Home = () => {
   const [activeListsLoading, setActiveListsLoading] = useState(true);
 
   const [showRecentActivity, setShowRecentActivity] = useState(true);
-  const [recentActivity, setRecentActivity] = useState(
-    new DataTotalResponse<RecentActivity>([], 0),
-  );
-  const [recentActivityLoading, setRecentActivityLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const [userProfileLoading, setUserProfileLoading] = useState(true);
 
   const getUserLists = useCallback(async () => {
     setActiveListsLoading(true);
@@ -44,24 +41,21 @@ const Home = () => {
     }
   }, [auth, alert]);
 
-  const getRecentActivity = useCallback(async () => {
-    setRecentActivityLoading(true);
+  const getUserProfile = useCallback(async () => {
+    setUserProfileLoading(true);
     try {
-      const data = await usersApi.getRecentActivity(
-        auth,
-        RECENT_ACTIVITY_COUNT,
-      );
-      setRecentActivity(data);
+      const data = await usersApi.getUserProfile(auth, auth.user!.sub);
+      setUserProfile(data);
     } catch (error) {
       alert.error(error.message, defaultErrorTimeout);
     } finally {
-      setRecentActivityLoading(false);
+      setUserProfileLoading(false);
     }
   }, [auth, alert]);
 
   useEffect(() => {
     const getData = async () => {
-      await Promise.all([getUserLists(), getRecentActivity()]);
+      await Promise.all([getUserLists(), getUserProfile()]);
     };
     getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,11 +96,12 @@ const Home = () => {
         </Menu.Item>
       </Menu>
       <Transition.Group animation="slide down" duration={300}>
-        {showRecentActivity && (
+        {userProfile && showRecentActivity && (
           <Container>
             <RecentUserActivity
-              data={recentActivity.data}
-              loading={recentActivityLoading}
+              data={userProfile.recentActivity}
+              loading={userProfileLoading}
+              isActivityOwner={true}
             />
           </Container>
         )}

@@ -9,6 +9,8 @@ import { Header, Loader, Menu, Segment, Tab } from 'semantic-ui-react';
 
 import './styles.scss';
 import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
+import ActivityTab from './tabs/ActivityTab';
+import SegmentPlaceholder from 'src/library/components/shared/SegmentPlaceholder';
 
 type ViewUserProfileProps = {
   userId: string;
@@ -57,6 +59,15 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
         <Loader active />
       </Segment>
     );
+  } else if (!userProfile.profile) {
+    return (
+      <SegmentPlaceholder
+        text="That profile could not be found"
+        iconName="times circle"
+        linkTo={appRoutes.home.index.path}
+        linkText="Return home"
+      />
+    );
   } else {
     return (
       <>
@@ -74,7 +85,15 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
                   content="Activity"
                 />
               ),
-              render: () => <Tab.Pane attached={false}>Activity</Tab.Pane>,
+              render: () => (
+                <Tab.Pane attached={false}>
+                  <ActivityTab
+                    recentActivityData={userProfile.profile!.recentActivity}
+                    recentActivityLoading={userProfile.loading}
+                    isActivityOwner={isProfileOwner}
+                  />
+                </Tab.Pane>
+              ),
             },
             {
               menuItem: (

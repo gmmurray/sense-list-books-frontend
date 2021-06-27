@@ -1,4 +1,3 @@
-import React from 'react';
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import { Feed } from 'semantic-ui-react';
@@ -20,14 +19,14 @@ const UserListActivity: FC<UserListActivityProps> = ({
       <Feed.Label icon="plus" />
       <Feed.Content>
         <Feed.Summary>
-          You started a{' '}
-          <Link to={appRoutes.progress.view.getDynamicPath!(identifier)}>
-            new list
-          </Link>
+          Started a new list
           <Feed.Date>{timeAgo.format(new Date(timeStamp))}</Feed.Date>
         </Feed.Summary>
-        <Feed.Extra text>{title}</Feed.Extra>
-        <Feed.Meta>{bookCount} book(s)</Feed.Meta>
+        <Feed.Extra text>
+          <Link to={appRoutes.progress.view.getDynamicPath!(identifier)}>
+            {title}
+          </Link>
+        </Feed.Extra>
       </Feed.Content>
     </Feed.Event>
   );

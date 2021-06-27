@@ -35,3 +35,14 @@ export class RecentBULIActivity extends RecentActivity {
     super(identifier, type, timeStamp);
   }
 }
+
+export class RecentListActivity extends RecentActivity {
+  constructor(
+    public identifier: string,
+    public type: ActivityType,
+    public timeStamp: Date,
+    public title: string,
+  ) {
+    super(identifier, type, timeStamp);
+  }
+}
