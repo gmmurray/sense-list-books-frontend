@@ -6,6 +6,7 @@ import {
   CreateBULIDto,
   PatchBULIDto,
 } from 'src/library/entities/uli/BookUserListItem';
+import { BookFormatType } from 'src/library/types/BookFormatType';
 import { BookReadingStatus } from 'src/library/types/BookReadingStatus';
 import { ItemMatch } from 'src/library/types/ItemMatch';
 import {
@@ -74,6 +75,15 @@ const ViewUserListBooks: FC<ViewUserListBooksProps> = ({
     [onUpdatesSave],
   );
 
+  const handleFormatChange = useCallback(
+    (value, buliId: string) => {
+      onUpdatesSave(buliId, {
+        format: value as BookFormatType,
+      });
+    },
+    [onUpdatesSave],
+  );
+
   const userItems = items
     .filter(item => item.userItem !== null)
     .map(item => item.userItem!);
@@ -127,12 +137,20 @@ const ViewUserListBooks: FC<ViewUserListBooksProps> = ({
           const truncatedDescription = truncateString(cleanedDescription, 150);
           const showBookInfo = !!pageCount || truncatedDescription.length > 0;
           if (userItem) {
-            const { id: userItemId, status, notes, owned, rating } = userItem;
+            const {
+              id: userItemId,
+              status,
+              notes,
+              owned,
+              rating,
+              format,
+            } = userItem;
             const {
               status: updatesStatus,
               notes: updatesNotes,
               owned: updatesOwned,
               rating: updatesRating,
+              format: updatesFormat,
             } = updates[userItemId];
             const isUpdating = updateLoading === userItemId;
             return (
@@ -143,10 +161,12 @@ const ViewUserListBooks: FC<ViewUserListBooksProps> = ({
                 notes={notes}
                 owned={owned}
                 rating={rating}
+                format={format}
                 updatesStatus={updatesStatus}
                 updatesNotes={updatesNotes}
                 updatesOwned={updatesOwned}
                 updatesRating={updatesRating}
+                updatesFormat={updatesFormat}
                 onStatusChange={(e, { value }) =>
                   handleStatusChange(value, userItemId)
                 }
@@ -161,6 +181,9 @@ const ViewUserListBooks: FC<ViewUserListBooksProps> = ({
                 }
                 onRatingChange={(e, newRating) =>
                   handleRatingChange(newRating, userItemId)
+                }
+                onFormatChange={(e, { value }) =>
+                  handleFormatChange(value, userItemId)
                 }
                 isUpdating={isUpdating}
                 bookId={book.id}

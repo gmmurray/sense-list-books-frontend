@@ -19,6 +19,10 @@ import {
   RatingProps,
 } from 'semantic-ui-react';
 import {
+  bookFormatSelectOptions,
+  BookFormatType,
+} from 'src/library/types/BookFormatType';
+import {
   BookReadingStatus,
   bookReadingStatusSelectOptions,
 } from 'src/library/types/BookReadingStatus';
@@ -51,6 +55,12 @@ type BULICardProps = {
   rating?: number | null;
   updatesRating?: number | null;
   onRatingChange?: (event: React.SyntheticEvent, data: number) => void;
+  format?: BookFormatType;
+  updatesFormat?: BookFormatType;
+  onFormatChange?: (
+    event: React.SyntheticEvent<HTMLElement, Event>,
+    data: DropdownProps,
+  ) => void;
   isUpdating: boolean;
   bookId: string;
   thumbnail: string;
@@ -89,6 +99,9 @@ const BULICard: FC<BULICardProps> = ({
   showBookInfo,
   onBULICreate,
   isCreating,
+  updatesFormat,
+  onFormatChange,
+  owned,
 }) => {
   const handleRatingChange = useCallback(
     (e: React.SyntheticEvent, { rating = 0 }: RatingProps) => {
@@ -176,6 +189,19 @@ const BULICard: FC<BULICardProps> = ({
                 onChange={onOwnedChange}
               />
             </Grid.Column>
+            {owned && (
+              <Grid.Column>
+                <Header sub content="Book format" />
+                <Form.Select
+                  disabled={isUpdating || bookOnly || !owned}
+                  fluid
+                  value={updatesFormat}
+                  options={bookFormatSelectOptions}
+                  onChange={onFormatChange}
+                  placeholder="Please select a format"
+                />
+              </Grid.Column>
+            )}
             <Grid.Column>
               <Header sub content="Rating" />
               <Rating

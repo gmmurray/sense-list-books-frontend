@@ -1,3 +1,4 @@
+import { BookFormatType } from 'src/library/types/BookFormatType';
 import { BookReadingStatus } from 'src/library/types/BookReadingStatus';
 import { BookUserList } from '../userList/BookUserList';
 import { ULI } from './UserListItem';
@@ -13,6 +14,7 @@ export class BULI extends ULI {
     public bookListItem: string,
     public status: BookReadingStatus,
     public owned: boolean,
+    public format: BookFormatType,
     public rating?: number | null,
   ) {
     super(id, userList, userId, notes, createdAt, updatedAt);
@@ -30,6 +32,7 @@ export class PopulatedBULI extends ULI {
     public bookListItem: string,
     public status: BookReadingStatus,
     public owned: boolean,
+    public format: BookFormatType,
     public rating?: number | null,
   ) {
     super(id, userList, userId, notes, createdAt, updatedAt);
@@ -42,6 +45,7 @@ export class CreateBULIDto {
     public bookListItem: string,
     public status: BookReadingStatus,
     public owned: boolean,
+    public format?: BookFormatType,
     public rating?: number | null,
     public notes?: string,
   ) {}
@@ -53,5 +57,6 @@ export class PatchBULIDto {
     public status?: BookReadingStatus,
     public owned?: boolean,
     public rating?: number | null,
+    public format?: BookFormatType,
   ) {}
 }

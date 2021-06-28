@@ -51,11 +51,13 @@ const ViewUserList = () => {
 
   const [visibleBuli, setVisibleBuli] = useState<BULI[]>([]);
 
-  const [buliCreateLoading, setBuliCreateLoading] =
-    useState<string | null>(null);
+  const [buliCreateLoading, setBuliCreateLoading] = useState<string | null>(
+    null,
+  );
 
-  const [buliUpdateLoading, setBuliUpdateLoading] =
-    useState<string | null>(null);
+  const [buliUpdateLoading, setBuliUpdateLoading] = useState<string | null>(
+    null,
+  );
   const [buliUpdates, setBuliUpdates] = useState<Record<string, PatchBULIDto>>(
     {},
   );
@@ -76,12 +78,13 @@ const ViewUserList = () => {
 
       const defaultBuliUpdates: Record<string, PatchBULIDto> = {};
       data.userListItems.forEach(
-        ({ id, notes, status, owned, rating }) =>
+        ({ id, notes, status, owned, rating, format }) =>
           (defaultBuliUpdates[id] = {
             notes,
             status,
             owned,
             rating,
+            format,
           }),
       );
       setBuliUpdates(defaultBuliUpdates);
