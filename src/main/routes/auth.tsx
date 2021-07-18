@@ -27,6 +27,8 @@ const authRoutes: RouteTree = {
     isPrivate: true,
     exact: true,
     breadcrumbs: [],
+    getDynamicPath: (userId, tab = '0') =>
+      `/profiles/view/${userId}?tab=${tab}`,
   },
   registerUser: {
     name: 'Register',

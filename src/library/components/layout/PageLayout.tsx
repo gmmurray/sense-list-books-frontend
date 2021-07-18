@@ -1,7 +1,8 @@
-import React, { FC, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { FC, useCallback, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import {
   Container,
+  Dropdown,
   Grid,
   Header,
   Icon,
@@ -12,14 +13,29 @@ import {
   Sidebar,
 } from 'semantic-ui-react';
 import { appRoutes } from 'src/main/routes';
-import LogoutButton from '../auth/LogoutButton';
 import Logo from '../../assets/images/logo_checkmark.png';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useAppContext } from 'src/main/context/appContext';
 
 type PageLayoutType = { children: JSX.Element };
 
 const PageLayout: FC<PageLayoutType> = ({ children }) => {
-  const location = useLocation();
+  let history = useHistory();
+  const { user, logout } = useAuth0();
+  const { isUserRegistered } = useAppContext() || {};
   const [navOpen, setNavOpen] = useState(false);
+
+  const handleLogout = useCallback(
+    () => logout({ returnTo: window.location.origin }),
+    [logout],
+  );
+
+  const handleProfileClick = useCallback(() => {
+    if (isUserRegistered) {
+      const route = appRoutes.auth.viewProfile.getDynamicPath!(user.sub, '2');
+      history.push(route);
+    }
+  }, [history, isUserRegistered, user.sub]);
   return (
     <div>
       <Sidebar.Pushable
@@ -48,7 +64,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
           </Menu.Item>
           <Menu.Item
             as={Link}
-            active={location.pathname === appRoutes.home.index.path}
+            active={history.location.pathname === appRoutes.home.index.path}
             to={appRoutes.home.index.path}
           >
             <Icon name="home" />
@@ -56,7 +72,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
           </Menu.Item>
           <Menu.Item
             as={Link}
-            active={location.pathname === appRoutes.progress.start.path}
+            active={history.location.pathname === appRoutes.progress.start.path}
             to={appRoutes.progress.start.path}
           >
             <Icon name="list" />
@@ -64,7 +80,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
           </Menu.Item>
           <Menu.Item
             as={Link}
-            active={location.pathname === appRoutes.lists.new.path}
+            active={history.location.pathname === appRoutes.lists.new.path}
             to={appRoutes.lists.new.path}
           >
             <Icon name="plus" />
@@ -72,7 +88,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
           </Menu.Item>
           <Menu.Item
             as={Link}
-            active={location.pathname === appRoutes.progress.list.path}
+            active={history.location.pathname === appRoutes.progress.list.path}
             to={appRoutes.progress.list.path}
           >
             <Icon name="book" />
@@ -87,7 +103,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
             flexDirection: 'column',
           }}
         >
-          <Menu fixed="top" inverted>
+          <Menu fixed="top" inverted borderless>
             <Menu.Item
               onClick={() => setNavOpen(!navOpen)}
               style={{ marginLeft: 0 }}
@@ -104,9 +120,21 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
                 SenseList Books
               </Menu.Item>
               <Menu.Menu position="right">
-                <Menu.Item>
-                  <LogoutButton />
-                </Menu.Item>
+                <Dropdown item icon="setting" simple>
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      text="Profile"
+                      icon="user"
+                      onClick={handleProfileClick}
+                      disabled={!isUserRegistered}
+                    />
+                    <Dropdown.Item
+                      text="Logout"
+                      icon="sign-out"
+                      onClick={handleLogout}
+                    />
+                  </Dropdown.Menu>
+                </Dropdown>
               </Menu.Menu>
             </Container>
           </Menu>
