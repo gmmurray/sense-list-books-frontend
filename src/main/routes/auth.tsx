@@ -3,8 +3,7 @@ import { RenderWithLocationType, RouteTree } from 'src/library/types/routes';
 import { StaticContext } from 'react-router';
 import Login from 'src/pages/auth/Login';
 import ViewUserProfile from 'src/pages/auth/profiles/ViewUserProfile';
-
-const routePrefix = '/auth'; //eslint-disable-line
+import RegisterUser from 'src/pages/auth/registerUser';
 
 const authRoutes: RouteTree = {
   login: {
@@ -21,10 +20,18 @@ const authRoutes: RouteTree = {
     exact: true,
     breadcrumbs: [],
   },
-  view: {
+  viewProfile: {
     name: 'View',
     path: `/profiles/view/:userId`,
     render: props => <ViewUserProfile {...props} />,
+    isPrivate: true,
+    exact: true,
+    breadcrumbs: [],
+  },
+  registerUser: {
+    name: 'Register',
+    path: '/users/register',
+    render: props => <RegisterUser {...props} />,
     isPrivate: true,
     exact: true,
     breadcrumbs: [],

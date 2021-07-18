@@ -7,16 +7,17 @@ import * as usersApi from 'src/library/api/backend/users';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import { ACTIVE_LISTS_COUNT } from 'src/library/constants/activity';
 import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
-import { UserProfile } from 'src/library/entities/user/UserProfile';
 import { BookUserList } from 'src/library/entities/userList/BookUserList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 import { appRoutes } from 'src/main/routes';
 import ActiveLists from './ActiveLists';
 import RecentUserActivity from 'src/library/components/users/recentActivity/RecentUserActivity';
+import { useAppContext } from 'src/main/context/appContext';
 
 const Home = () => {
   const auth = useAuth0();
   const alert = useAlert();
+  const { currentProfile: userProfile } = useAppContext() || {};
 
   const [showActiveLists, setShowActiveLists] = useState(true);
   const [activeLists, setActiveLists] = useState(
@@ -25,9 +26,6 @@ const Home = () => {
   const [activeListsLoading, setActiveListsLoading] = useState(true);
 
   const [showRecentActivity, setShowRecentActivity] = useState(true);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-
-  const [userProfileLoading, setUserProfileLoading] = useState(true);
 
   const getUserLists = useCallback(async () => {
     setActiveListsLoading(true);
@@ -41,23 +39,8 @@ const Home = () => {
     }
   }, [auth, alert]);
 
-  const getUserProfile = useCallback(async () => {
-    setUserProfileLoading(true);
-    try {
-      const data = await usersApi.getUserProfile(auth, auth.user!.sub);
-      setUserProfile(data);
-    } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
-    } finally {
-      setUserProfileLoading(false);
-    }
-  }, [auth, alert]);
-
   useEffect(() => {
-    const getData = async () => {
-      await Promise.all([getUserLists(), getUserProfile()]);
-    };
-    getData();
+    getUserLists();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -100,7 +83,7 @@ const Home = () => {
           <Container>
             <RecentUserActivity
               data={userProfile.recentActivity}
-              loading={userProfileLoading}
+              loading={false}
               isActivityOwner={true}
             />
           </Container>

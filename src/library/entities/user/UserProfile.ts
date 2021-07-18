@@ -22,8 +22,8 @@ export class PrivateUserFields {
 
 export class CreateUserProfileDto {
   constructor(
-    public authId?: string,
-    public username?: string,
+    public username: string,
+    public authId: string,
     public privateFields?: PrivateUserFields,
   ) {}
 }

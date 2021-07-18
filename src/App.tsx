@@ -1,28 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
-import PrivateRoute from './library/components/auth/PrivateRoute';
-import { RouteDeclaration } from './library/types/routes';
-import { appRoutes, privateRoutes, publicRoutes } from './main/routes';
 import * as serverApi from './library/api/backend/serverStatus';
+import * as usersApi from './library/api/backend/users';
 import { AppContext } from './main/context/appContext';
 import FullScreenLoader from './library/components/layout/FullScreenLoader';
+import PrivateRoutes from './library/components/auth/PrivateRoutes';
+import PublicRoutes from './library/components/auth/PublicRoutes';
+import { userIsRegistered } from './library/utilities/auth';
+import { UserProfile } from './library/entities/user/UserProfile';
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth0();
-  let history = useHistory();
+  const auth = useAuth0();
+  const { isAuthenticated, isLoading, user } = auth;
   const [isLoadingBackend, setIsLoadingBackend] = useState(true);
   const [isBackendUnavailable, setIsBackendUnavailable] = useState(false);
-  const defaultLocation = isBackendUnavailable
-    ? {
-        pathname: appRoutes.home.serverUnavailable.path,
-        search: '',
-        hash: '',
-        state: {
-          previous: history.location.pathname,
-        },
-      }
-    : undefined;
+  const [isUserRegistered, setIsUserRegistered] = useState(true);
+  const [userProfile, setUserProfile] = useState<{
+    profile: UserProfile | null;
+    loading: boolean;
+  }>({ profile: null, loading: false });
+
+  const getUserProfile = useCallback(async () => {
+    setUserProfile(state => ({ ...state, loading: true }));
+    try {
+      const profile = await usersApi.getUserProfile(auth, auth.user.sub);
+      setUserProfile(state => ({ ...state, profile }));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUserProfile(state => ({ ...state, loading: false }));
+    }
+  }, [auth]);
 
   useEffect(() => {
     const checkServerStatus = async () => {
@@ -40,39 +48,31 @@ function App() {
     checkServerStatus();
   }, []);
 
-  if (isLoading || isLoadingBackend) {
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const registered = userIsRegistered(user);
+      setIsUserRegistered(isAuthenticated && registered);
+      if (registered) {
+        getUserProfile();
+      }
+    }
+  }, [getUserProfile, isAuthenticated, user]);
+
+  if (isLoading || isLoadingBackend || userProfile.loading) {
     return <FullScreenLoader />;
   }
+
   const contextValue = {
     isLoadingBackend,
     isBackendUnavailable,
     setIsBackendUnavailable,
+    isUserRegistered,
+    currentProfile: userProfile.profile,
   };
+
   return (
     <AppContext.Provider value={contextValue}>
-      <Switch location={defaultLocation}>
-        {publicRoutes.map(({ path, render, exact }: RouteDeclaration) => (
-          <Route key={path} path={path} exact={exact} render={render} />
-        ))}
-        {privateRoutes.map(({ path, render, exact }: RouteDeclaration) => (
-          <PrivateRoute
-            key={path}
-            isAuthenticated={isAuthenticated}
-            path={path}
-            exact={exact}
-            render={render}
-          />
-        ))}
-        <Route
-          render={() => {
-            if (isAuthenticated) {
-              return <Redirect to={appRoutes.home.index.path} />;
-            } else {
-              return <Redirect to={appRoutes.auth.login.path} />;
-            }
-          }}
-        />
-      </Switch>
+      {isAuthenticated ? <PrivateRoutes /> : <PublicRoutes />}
     </AppContext.Provider>
   );
 }

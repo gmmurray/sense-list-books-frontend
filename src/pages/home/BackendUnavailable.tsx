@@ -1,20 +1,25 @@
-import { useState } from 'react';
-import { Redirect, useHistory } from 'react-router';
+import { FC, useState } from 'react';
+import { Redirect } from 'react-router';
 import { useInterval } from 'src/library/utilities/useInterval';
 import { useAppContext } from 'src/main/context/appContext';
 import { appRoutes } from 'src/main/routes';
 import * as serverStatusApi from 'src/library/api/backend/serverStatus';
 import FullScreenLoader from 'src/library/components/layout/FullScreenLoader';
 import FullScreenMessage from 'src/library/components/layout/FullScreenMessage';
+import { LocationState } from 'history';
+import { RouteComponentProps } from 'react-router-dom';
 
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_INTERVAL = 5000;
-const ServerUnavailable = () => {
+
+const BackendUnavailable: FC<
+  RouteComponentProps<{}, any, LocationState | any>
+> = ({ location }) => {
   const { isBackendUnavailable, setIsBackendUnavailable } =
     useAppContext() || {};
-  let history = useHistory();
   const [retryAttempts, setRetryAttempts] = useState(1);
   const maxAttemptsReached = retryAttempts === MAX_RETRY_ATTEMPTS + 1;
+
   useInterval(async () => {
     if (!maxAttemptsReached && isBackendUnavailable) {
       try {
@@ -34,14 +39,9 @@ const ServerUnavailable = () => {
 
   if (!isBackendUnavailable) {
     const {
-      location: { pathname },
-    } = history;
-    const {
-      serverUnavailable: { path: unavailablePath },
       index: { path: homePath },
     } = appRoutes.home || {};
-    const redirectPath =
-      pathname.substring(1) === unavailablePath ? homePath : pathname;
+    const redirectPath = location?.state?.previous ?? homePath;
     return <Redirect to={redirectPath} />;
   }
 
@@ -59,4 +59,4 @@ const ServerUnavailable = () => {
   }
 };
 
-export default ServerUnavailable;
+export default BackendUnavailable;

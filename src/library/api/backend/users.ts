@@ -68,3 +68,14 @@ export const getActiveLists = async (
     url: `${bookUsersRoute}/active-lists/${count}`,
   });
 };
+
+export const registerUser = async (
+  authContext: Auth0ContextInterface,
+  data: CreateUserProfileDto,
+): Promise<void> =>
+  await authenticatedRequest({
+    authContext,
+    method: 'POST',
+    url: `${bookUsersRoute}/register`,
+    data,
+  });
