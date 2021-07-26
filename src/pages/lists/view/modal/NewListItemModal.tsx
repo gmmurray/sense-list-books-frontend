@@ -30,6 +30,7 @@ type NewListItemModalProps = {
   onOpen: () => void;
   onClose: () => void;
   onModalSubmitted: () => void;
+  onNewOrdinalChange: (ordinal: number) => void;
   listId: string;
   newOrdinal: number;
   excludedBookIds: string[];
@@ -40,6 +41,7 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
   onOpen,
   onClose,
   onModalSubmitted,
+  onNewOrdinalChange,
   listId,
   newOrdinal,
   excludedBookIds,
@@ -201,6 +203,7 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
 
           if (continueAdding) {
             handleReset();
+            onNewOrdinalChange(newOrdinal + 1);
           } else {
             handleClose();
           }
@@ -218,6 +221,7 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
       auth,
       alert,
       handleReset,
+      onNewOrdinalChange,
       handleClose,
     ],
   );

@@ -7,6 +7,8 @@ import { onSortEndParams } from 'src/library/types/reactSortableHoc';
 import { ListItemCard, SortableListItem } from './ListItemCard';
 import { ListItemCardGroup, SortableListItems } from './ListItemCardGroup';
 
+import './style.scss';
+
 type ViewListBooksProps = {
   items: BookListItem[] | string[];
   ordinalChanges: ListItemOrdinalUpdate[];
@@ -86,6 +88,8 @@ const ViewListBooks: FC<ViewListBooksProps> = ({
               />
             )}
           </Menu.Item>
+          {active && <Menu.Item>Drag & Drop</Menu.Item>}
+          {!active && <Menu.Item>{`${items.length} book(s)`}</Menu.Item>}
           <Menu.Item position="right">
             {active ? (
               <Button
@@ -106,7 +110,10 @@ const ViewListBooks: FC<ViewListBooksProps> = ({
         </Menu>
       )}
       {active ? (
-        <SortableListItems onSortEnd={onSortEnd}>
+        <SortableListItems
+          onSortEnd={onSortEnd}
+          helperClass="sortable-dragging"
+        >
           {(items as BookListItem[])
             .sort((a, b) => a.ordinal - b.ordinal)
             .map((item, index) => (
@@ -116,6 +123,7 @@ const ViewListBooks: FC<ViewListBooksProps> = ({
                 index={index}
                 onDelete={onDelete}
                 canEdit={canEdit}
+                ordinal={index}
               />
             ))}
         </SortableListItems>
@@ -129,6 +137,7 @@ const ViewListBooks: FC<ViewListBooksProps> = ({
                 item={item}
                 onDelete={onDelete}
                 canEdit={canEdit}
+                ordinal={index}
               />
             ))}
         </ListItemCardGroup>

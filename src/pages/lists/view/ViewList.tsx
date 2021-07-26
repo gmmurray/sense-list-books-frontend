@@ -65,6 +65,8 @@ const ViewList = () => {
   const [listDeletionLoading, setListDeletionLoading] = useState(false);
   const [listDeletionConfirmOpen, setListDeletionConfirmOpen] = useState(false);
 
+  const [newItemOrdinal, setNewItemOrdinal] = useState(0);
+
   const { handleSubmit, errors, control, reset } = useForm<IEditListInputs>({
     resolver: yupResolver(editListSchema),
   });
@@ -215,6 +217,16 @@ const ViewList = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (list) {
+      const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
+        (a, b) => a.ordinal - b.ordinal,
+      )[list.bookListItems.length - 1]?.ordinal;
+      const newOrdinal = (lastOrdinal || -1) + 1;
+      setNewItemOrdinal(newOrdinal);
+    }
+  }, [list]);
+
   const hasEditPermission = auth.user && auth.user.sub === list?.ownerId;
   const excludedBookIds =
     list && list.bookListItems
@@ -238,10 +250,10 @@ const ViewList = () => {
       </Fragment>
     );
   } else if (list) {
-    const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
-      (a, b) => a.ordinal - b.ordinal,
-    )[list.bookListItems.length - 1]?.ordinal;
-    const newItemOrdinal = (lastOrdinal || -1) + 1;
+    // const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
+    //   (a, b) => a.ordinal - b.ordinal,
+    // )[list.bookListItems.length - 1]?.ordinal;
+    // const newItemOrdinal = (lastOrdinal || -1) + 1;
     return (
       <Fragment>
         <BreadcrumbWrapper breadcrumbs={appRoutes.lists.view.breadcrumbs!} />
@@ -309,6 +321,7 @@ const ViewList = () => {
           onModalSubmitted={handleItemSubmission}
           listId={listId}
           newOrdinal={newItemOrdinal}
+          onNewOrdinalChange={(ordinal: number) => setNewItemOrdinal(ordinal)}
           excludedBookIds={excludedBookIds}
         />
         <Confirm
