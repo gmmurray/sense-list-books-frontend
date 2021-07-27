@@ -30,8 +30,8 @@ export class BookList extends List {
 }
 
 export class QueryBookListDto extends QueryListDto {
-  constructor(searchTerm: string, ownerOnly: boolean) {
+  constructor(searchTerm?: string, ownerOnly?: boolean, ownerId?: string) {
     const value = searchTerm || undefined;
-    super(value, value, value, ListType.Book, ownerOnly);
+    super(value, value, value, ListType.Book, ownerOnly, ownerId);
   }
 }

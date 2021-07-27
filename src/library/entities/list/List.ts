@@ -21,5 +21,6 @@ export class QueryListDto {
     public category?: string,
     public type?: ListType,
     public ownerOnly?: boolean | string,
+    public ownerId?: string,
   ) {}
 }
