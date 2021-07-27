@@ -11,6 +11,7 @@ import './styles.scss';
 import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import ActivityTab from './tabs/ActivityTab';
 import SegmentPlaceholder from 'src/library/components/shared/SegmentPlaceholder';
+import { UserStatistics } from 'src/library/entities/user/UserStatistics';
 
 type ViewUserProfileProps = {
   userId: string;
@@ -35,6 +36,11 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
     loading: boolean;
   }>({ profile: null, loading: true });
 
+  const [userStatistics, setUserStatistics] = useState<{
+    data: UserStatistics | null;
+    loading: boolean;
+  }>({ data: null, loading: true });
+
   const getUserProfile = useCallback(async () => {
     setUserProfile(state => ({ ...state, loading: true }));
     try {
@@ -47,8 +53,23 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
     }
   }, [alert, auth, userId]);
 
+  const getUserStatistics = useCallback(async () => {
+    setUserStatistics(state => ({ ...state, loading: true }));
+    try {
+      const data = await usersApi.getUserStats(auth, userId);
+      setUserStatistics(state => ({ ...state, data }));
+    } catch (error) {
+      alert.error(error.message, defaultErrorTimeout);
+    } finally {
+      setUserStatistics(state => ({ ...state, loading: false }));
+    }
+  }, [alert, auth, userId]);
+
   useEffect(() => {
-    if (userId) getUserProfile();
+    if (userId) {
+      getUserProfile();
+      getUserStatistics();
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!userId) {
@@ -91,6 +112,8 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
                     recentActivityData={userProfile.profile!.recentActivity}
                     recentActivityLoading={userProfile.loading}
                     isActivityOwner={isProfileOwner}
+                    statisticsData={userStatistics.data}
+                    statisticsLoading={userStatistics.loading}
                   />
                 </Tab.Pane>
               ),

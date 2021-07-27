@@ -2,7 +2,7 @@ import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { Fragment } from 'react';
 import { FC } from 'react';
-import { Feed } from 'semantic-ui-react';
+import { Feed, Header } from 'semantic-ui-react';
 import SegmentPlaceholder from 'src/library/components/shared/SegmentPlaceholder';
 import RecentActivityPlaceholder from 'src/library/components/users/RecentActivityPlaceholder';
 import {
@@ -48,6 +48,7 @@ const RecentUserActivity: FC<RecentUserActivityProps> = ({
   );
   return (
     <Fragment>
+      <Header size="medium" content="Recent Activity" />
       <Feed size="large">
         {sortedData.map(item => {
           if (item.type === ActivityType.start) {

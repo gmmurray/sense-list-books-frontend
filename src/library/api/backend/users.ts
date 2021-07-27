@@ -5,6 +5,7 @@ import {
   PatchUserProfileDto,
   UserProfile,
 } from 'src/library/entities/user/UserProfile';
+import { UserStatistics } from 'src/library/entities/user/UserStatistics';
 import { PopulatedBookUserList } from 'src/library/entities/userList/BookUserList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 import { authenticatedRequest } from '.';
@@ -78,4 +79,14 @@ export const registerUser = async (
     method: 'POST',
     url: `${bookUsersRoute}/register`,
     data,
+  });
+
+export const getUserStats = async (
+  authContext: Auth0ContextInterface,
+  authId: string,
+): Promise<UserStatistics> =>
+  await authenticatedRequest({
+    authContext,
+    method: 'GET',
+    url: `${bookUsersRoute}/statistics/${authId}`,
   });

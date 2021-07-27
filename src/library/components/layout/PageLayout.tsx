@@ -32,7 +32,7 @@ const PageLayout: FC<PageLayoutType> = ({ children }) => {
 
   const handleProfileClick = useCallback(() => {
     if (isUserRegistered) {
-      const route = appRoutes.auth.viewProfile.getDynamicPath!(user.sub, '2');
+      const route = appRoutes.auth.viewProfile.getDynamicPath!(user.sub, '0');
       history.push(route);
     }
   }, [history, isUserRegistered, user.sub]);
