@@ -54,12 +54,11 @@ const ViewList = () => {
   const [isEditingOrdinals, setIsEditingOrdinals] = useState(false);
   const [itemDeletionLoading, setItemDeletionLoading] = useState(false);
   const [itemDeletionConfirmOpen, setItemDeletionConfirmOpen] = useState(false);
-  const [itemToBeDeleted, setItemToBeDeleted] =
-    useState<{
-      id: string;
-      title: string;
-      authors: string;
-    } | null>(null);
+  const [itemToBeDeleted, setItemToBeDeleted] = useState<{
+    id: string;
+    title: string;
+    authors: string;
+  } | null>(null);
   const [itemOrdinalChanges, setItemOrdinalChanges] = useState<
     ListItemOrdinalUpdate[]
   >([]);
@@ -70,6 +69,7 @@ const ViewList = () => {
 
   const [ownerProfile, setOwnerProfile] = useState<UserProfile | null>(null);
   const [ownerProfileLoading, setOwnerProfileLoading] = useState(false);
+  const [newItemOrdinal, setNewItemOrdinal] = useState(0);
 
   const { handleSubmit, errors, control, reset } = useForm<IEditListInputs>({
     resolver: yupResolver(editListSchema),
@@ -237,6 +237,16 @@ const ViewList = () => {
     if (list?.ownerId && !ownerProfile) getOwnerProfile();
   }, [list]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (list) {
+      const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
+        (a, b) => a.ordinal - b.ordinal,
+      )[list.bookListItems.length - 1]?.ordinal;
+      const newOrdinal = (lastOrdinal || -1) + 1;
+      setNewItemOrdinal(newOrdinal);
+    }
+  }, [list]);
+
   const hasEditPermission = auth.user && auth.user.sub === list?.ownerId;
   const excludedBookIds =
     list && list.bookListItems
@@ -260,10 +270,10 @@ const ViewList = () => {
       </Fragment>
     );
   } else if (list) {
-    const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
-      (a, b) => a.ordinal - b.ordinal,
-    )[list.bookListItems.length - 1]?.ordinal;
-    const newItemOrdinal = (lastOrdinal || -1) + 1;
+    // const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
+    //   (a, b) => a.ordinal - b.ordinal,
+    // )[list.bookListItems.length - 1]?.ordinal;
+    // const newItemOrdinal = (lastOrdinal || -1) + 1;
     return (
       <Fragment>
         <BreadcrumbWrapper breadcrumbs={appRoutes.lists.view.breadcrumbs!} />
@@ -334,6 +344,7 @@ const ViewList = () => {
           onModalSubmitted={handleItemSubmission}
           listId={listId}
           newOrdinal={newItemOrdinal}
+          onNewOrdinalChange={(ordinal: number) => setNewItemOrdinal(ordinal)}
           excludedBookIds={excludedBookIds}
         />
         <Confirm

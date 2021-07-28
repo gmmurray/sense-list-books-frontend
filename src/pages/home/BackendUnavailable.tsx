@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { Redirect } from 'react-router';
-import { useInterval } from 'src/library/utilities/useInterval';
+import { useInterval } from 'src/library/utilities/hooks/useInterval';
 import { useAppContext } from 'src/main/context/appContext';
 import { appRoutes } from 'src/main/routes';
 import * as serverStatusApi from 'src/library/api/backend/serverStatus';

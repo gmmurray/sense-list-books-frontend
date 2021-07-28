@@ -30,6 +30,7 @@ type NewListItemModalProps = {
   onOpen: () => void;
   onClose: () => void;
   onModalSubmitted: () => void;
+  onNewOrdinalChange: (ordinal: number) => void;
   listId: string;
   newOrdinal: number;
   excludedBookIds: string[];
@@ -40,6 +41,7 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
   onOpen,
   onClose,
   onModalSubmitted,
+  onNewOrdinalChange,
   listId,
   newOrdinal,
   excludedBookIds,
@@ -47,18 +49,23 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
   const auth = useAuth0();
   const alert = useAlert();
   const [selectedBook, setSelectedBook] = useState<GoogleApiBook | null>(null);
-  const [search, setSearch] = useState<newListItemModalSearchState>(
-    DEFAULT_SEARCH_STATE,
-  );
+  const [search, setSearch] =
+    useState<newListItemModalSearchState>(DEFAULT_SEARCH_STATE);
   const [loading, setLoading] = useState<newListItemModalLoadingState>(
     DEFAULT_LOADING_STATE,
   );
-  const [error, setError] = useState<newListItemModalErrorState>(
-    DEFAULT_ERROR_STATE,
-  );
-  const [page, setPage] = useState<newListItemModalPageState>(
-    DEFAULT_PAGE_STATE,
-  );
+  const [error, setError] =
+    useState<newListItemModalErrorState>(DEFAULT_ERROR_STATE);
+  const [page, setPage] =
+    useState<newListItemModalPageState>(DEFAULT_PAGE_STATE);
+
+  const handleReset = useCallback(() => {
+    setSearch(DEFAULT_SEARCH_STATE);
+    setSelectedBook(null);
+    setError(DEFAULT_ERROR_STATE);
+    setLoading(DEFAULT_LOADING_STATE);
+    setPage(DEFAULT_PAGE_STATE);
+  }, []);
 
   const handleSearchLoadingChange = useCallback(
     (searchLoading: boolean) => {
@@ -175,43 +182,49 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
     ],
   );
 
-  const handleSaveItem = useCallback(async () => {
-    if (selectedBook) {
-      handleSaveLoadingChange(true);
-      handleSaveErrorChange(null);
-      try {
-        const req: listItemApi.newListItemRequest = {
-          list: listId,
-          volumeId: selectedBook.id,
-          ordinal: newOrdinal,
-        };
-        await listItemApi.createBookListItem(auth, req);
-        alert.success('Item successfully added');
-        onClose();
-        onModalSubmitted();
-      } catch (error) {
-        handleSaveErrorChange(error.message);
-      }
-    }
-  }, [
-    handleSaveErrorChange,
-    handleSaveLoadingChange,
-    auth,
-    listId,
-    newOrdinal,
-    selectedBook,
-    onModalSubmitted,
-    alert,
-    onClose,
-  ]);
+  const handleClose = useCallback(() => {
+    onClose();
+    onModalSubmitted();
+  }, [onClose, onModalSubmitted]);
 
-  const handleReset = useCallback(() => {
-    setSearch(DEFAULT_SEARCH_STATE);
-    setSelectedBook(null);
-    setError(DEFAULT_ERROR_STATE);
-    setLoading(DEFAULT_LOADING_STATE);
-    setPage(DEFAULT_PAGE_STATE);
-  }, []);
+  const handleSaveItem = useCallback(
+    async (continueAdding = false) => {
+      if (selectedBook) {
+        handleSaveLoadingChange(true);
+        handleSaveErrorChange(null);
+        try {
+          const req: listItemApi.newListItemRequest = {
+            list: listId,
+            volumeId: selectedBook.id,
+            ordinal: newOrdinal,
+          };
+          await listItemApi.createBookListItem(auth, req);
+          alert.success('Item successfully added');
+
+          if (continueAdding) {
+            handleReset();
+            onNewOrdinalChange(newOrdinal + 1);
+          } else {
+            handleClose();
+          }
+        } catch (error) {
+          handleSaveErrorChange(error.message);
+        }
+      }
+    },
+    [
+      selectedBook,
+      handleSaveLoadingChange,
+      handleSaveErrorChange,
+      listId,
+      newOrdinal,
+      auth,
+      alert,
+      handleReset,
+      onNewOrdinalChange,
+      handleClose,
+    ],
+  );
 
   const handleDeselect = useCallback(() => {
     setSelectedBook(null);
@@ -224,7 +237,7 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
   const isValidBook = !!selectedBook;
 
   return (
-    <Modal onOpen={onOpen} onClose={onClose} open={open} closeIcon>
+    <Modal onOpen={onOpen} onClose={handleClose} open={open} closeIcon>
       <div style={{ margin: '1rem 1rem 0' }}>
         <Message
           hidden={!error.search && !error.save}
@@ -259,17 +272,25 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
         {selectedBook && <SelectedView selectedBook={selectedBook} />}
       </Modal.Content>
       <Modal.Actions>
-        <Button onClick={onClose} content="Close" />
+        <Button onClick={handleClose} content="Close" />
         {selectedBook && (
-          <Button onClick={handleDeselect}>Pick another instead</Button>
+          <Button onClick={handleDeselect}>Pick a different book</Button>
         )}
         <Button
-          primary
-          onClick={handleSaveItem}
+          positive
+          onClick={() => handleSaveItem(false)}
           disabled={!isValidBook}
           loading={loading.save && !error.save}
         >
-          Add to list
+          Done
+        </Button>
+        <Button
+          primary
+          onClick={() => handleSaveItem(true)}
+          disabled={!isValidBook}
+          loading={loading.save && !error.save}
+        >
+          Continue adding
         </Button>
       </Modal.Actions>
     </Modal>
