@@ -270,10 +270,6 @@ const ViewList = () => {
       </Fragment>
     );
   } else if (list) {
-    // const lastOrdinal = (list.bookListItems as BookListItem[]).sort(
-    //   (a, b) => a.ordinal - b.ordinal,
-    // )[list.bookListItems.length - 1]?.ordinal;
-    // const newItemOrdinal = (lastOrdinal || -1) + 1;
     return (
       <Fragment>
         <BreadcrumbWrapper breadcrumbs={appRoutes.lists.view.breadcrumbs!} />

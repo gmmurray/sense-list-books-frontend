@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, Fragment, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Header, Popup, Segment, Table } from 'semantic-ui-react';
 import SegmentPlaceholder from 'src/library/components/shared/SegmentPlaceholder';
@@ -42,50 +42,52 @@ const ListsTab: FC<ListsTabProps> = ({ data, loading }) => {
   const { data: items = new Array<BookList>(), total = 0 } = data;
 
   return (
-    <Segment basic>
+    <Fragment>
       <Header size="medium" content="Lists" />
-      <Table striped stackable compact selectable>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell content="Title" />
-            <Table.HeaderCell content="Category" />
-            <Table.HeaderCell content="Description" />
-            <Table.HeaderCell content="Last updated" />
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {items.map(({ id, title, category, description, updatedAt }) => {
-            const isTruncated = description.length > DESCRIPTION_MAX_LENGTH;
-            const truncatedDescription = isTruncated
-              ? `${description.substring(0, DESCRIPTION_MAX_LENGTH)}...`
-              : description;
-            return (
-              <Table.Row
-                key={id}
-                onClick={() => handleRowClick(id)}
-                className="list-table-cell"
-              >
-                <Table.Cell content={title} collapsing />
-                <Table.Cell content={category} />
-                <Popup
-                  disabled={!isTruncated}
-                  content={description}
-                  trigger={<Table.Cell content={truncatedDescription} />}
-                />
-                <Table.Cell content={formatShortDate(updatedAt)} />
-              </Table.Row>
-            );
-          })}
-        </Table.Body>
-        {total !== 0 && (
-          <Table.Footer>
+      <Segment basic>
+        <Table striped stackable compact selectable>
+          <Table.Header>
             <Table.Row>
-              <Table.HeaderCell colSpan={4}>{total} list(s)</Table.HeaderCell>
+              <Table.HeaderCell content="Title" />
+              <Table.HeaderCell content="Category" />
+              <Table.HeaderCell content="Description" />
+              <Table.HeaderCell content="Last updated" />
             </Table.Row>
-          </Table.Footer>
-        )}
-      </Table>
-    </Segment>
+          </Table.Header>
+          <Table.Body>
+            {items.map(({ id, title, category, description, updatedAt }) => {
+              const isTruncated = description.length > DESCRIPTION_MAX_LENGTH;
+              const truncatedDescription = isTruncated
+                ? `${description.substring(0, DESCRIPTION_MAX_LENGTH)}...`
+                : description;
+              return (
+                <Table.Row
+                  key={id}
+                  onClick={() => handleRowClick(id)}
+                  className="list-table-cell"
+                >
+                  <Table.Cell content={title} collapsing />
+                  <Table.Cell content={category} />
+                  <Popup
+                    disabled={!isTruncated}
+                    content={description}
+                    trigger={<Table.Cell content={truncatedDescription} />}
+                  />
+                  <Table.Cell content={formatShortDate(updatedAt)} />
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+          {total !== 0 && (
+            <Table.Footer>
+              <Table.Row>
+                <Table.HeaderCell colSpan={4}>{total} list(s)</Table.HeaderCell>
+              </Table.Row>
+            </Table.Footer>
+          )}
+        </Table>
+      </Segment>
+    </Fragment>
   );
 };
 

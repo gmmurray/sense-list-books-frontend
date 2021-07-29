@@ -32,7 +32,7 @@ const WrappedSelect: FC<WrappedSelectProps> = ({
         options={options}
         label={label}
         error={error}
-        onChange={onChange}
+        onChange={(event, { value }) => onChange(value)}
         value={value}
         {...rest}
       />

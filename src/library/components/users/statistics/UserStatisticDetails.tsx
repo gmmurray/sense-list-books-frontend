@@ -28,7 +28,11 @@ const UserStatisticDetails: FC<UserStatisticDetailsProps> = ({
       <Header size="medium" content="Stats" />
       <Grid>
         {Object.keys(flattenedData).map(key => (
-          <Grid.Column width={4} style={{ textAlign: 'center' }}>
+          <Grid.Column
+            key={`${userStatisticsLabelLookup[key]}-key`}
+            width={4}
+            style={{ textAlign: 'center' }}
+          >
             <Statistic
               size="mini"
               label={userStatisticsLabelLookup[key]}

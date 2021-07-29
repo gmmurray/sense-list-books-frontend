@@ -18,6 +18,7 @@ import { BookList, QueryBookListDto } from 'src/library/entities/list/BookList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 
 import './styles.scss';
+import SettingsTab from './tabs/SettingsTab';
 
 type ViewUserProfileProps = {
   userId: string;
@@ -165,7 +166,16 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
                 />
               ) : undefined,
               render: isProfileOwner
-                ? () => <Tab.Pane attached={false}>Settings</Tab.Pane>
+                ? () => (
+                    <Tab.Pane attached={false}>
+                      <SettingsTab
+                        profile={userProfile.data}
+                        loading={userProfile.loading}
+                        isProfileOwner={isProfileOwner}
+                        getProfile={getUserProfile}
+                      />
+                    </Tab.Pane>
+                  )
                 : undefined,
             },
           ]}

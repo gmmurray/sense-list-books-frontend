@@ -56,6 +56,7 @@ const RecentUserActivity: FC<RecentUserActivityProps> = ({
               <UserListActivity
                 data={item as RecentUserListActivity}
                 timeAgo={timeAgo}
+                key={item.identifier}
               />
             );
           } else if (item.type === ActivityType.progress) {
@@ -63,6 +64,7 @@ const RecentUserActivity: FC<RecentUserActivityProps> = ({
               <BULIActivity
                 data={item as RecentBULIActivity}
                 timeAgo={timeAgo}
+                key={item.identifier}
               />
             );
           } else if (
@@ -74,6 +76,7 @@ const RecentUserActivity: FC<RecentUserActivityProps> = ({
                 data={item as RecentListActivity}
                 timeAgo={timeAgo}
                 type={item.type}
+                key={item.identifier}
               />
             );
           } else return null;
