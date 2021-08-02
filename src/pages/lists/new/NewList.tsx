@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Fragment } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
@@ -14,6 +14,9 @@ import { useHistory } from 'react-router-dom';
 import { appRoutes } from 'src/main/routes';
 import { useAlert } from 'react-alert';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
+import WrappedTextArea from 'src/library/components/form/WrappedTextArea';
+
+import './style.scss';
 
 const NewList = () => {
   const auth = useAuth0();
@@ -62,16 +65,6 @@ const NewList = () => {
               error={errors.title?.message}
             />
             <WrappedTextInput
-              name="description"
-              control={control}
-              defaultValue=""
-              label="Description"
-              placeholder="The best way to read these books!"
-              error={errors.description?.message}
-            />
-          </Form.Group>
-          <Form.Group widths={2}>
-            <WrappedTextInput
               name="category"
               control={control}
               defaultValue=""
@@ -79,17 +72,16 @@ const NewList = () => {
               placeholder="Fantasy"
               error={errors.category?.message}
             />
-            <WrappedSelect
-              name="type"
-              control={control}
-              defaultValue={ListType.Book}
-              label="Type"
-              error={errors.type?.message}
-              options={getListTypeOptions()}
-              readOnly
-              disabled
-            />
           </Form.Group>
+          <WrappedTextArea
+            name="description"
+            control={control}
+            defaultValue=""
+            label="Description"
+            placeholder="The best way to read these books!"
+            error={errors.description?.message}
+            fluid
+          />
           <Form.Group widths={2}>
             <Form.Field error={errors.isPublic?.message}>
               <WrappedCheckbox
@@ -100,6 +92,17 @@ const NewList = () => {
                 toggle
               />
             </Form.Field>
+            <WrappedSelect
+              name="type"
+              control={control}
+              defaultValue={ListType.Book}
+              label="Type"
+              error={errors.type?.message}
+              options={getListTypeOptions()}
+              readOnly
+              disabled
+              className="list-type-field"
+            />
           </Form.Group>
           <Button type="submit" primary>
             Save

@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { Control, DeepMap, FieldError } from 'react-hook-form';
 import { Button, Form, Message } from 'semantic-ui-react';
 import WrappedCheckbox from 'src/library/components/form/WrappedCheckbox';
+import WrappedTextArea from 'src/library/components/form/WrappedTextArea';
 import WrappedTextInput from 'src/library/components/form/WrappedTextInput';
 import UserProfilePopup from 'src/library/components/users/UserProfilePopup';
 import { BookList } from 'src/library/entities/list/BookList';
@@ -79,7 +80,7 @@ const ViewListForm: FC<ViewListFormProps> = ({
         error={formErrors.category?.message}
         readOnly={!active}
       />
-      <WrappedTextInput
+      <WrappedTextArea
         name="description"
         control={formControl}
         defaultValue={list.description}
