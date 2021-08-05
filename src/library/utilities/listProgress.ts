@@ -34,3 +34,6 @@ export const getListReadingProgressText = (
 
   return progressText;
 };
+
+export const getProgressColor = (progress: number, max: number) =>
+  `rgba(33,186,69,${progress / max})`;

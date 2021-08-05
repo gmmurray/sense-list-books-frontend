@@ -9,6 +9,7 @@ import { ToastifyWrapper } from './library/components/layout/ToastifyWrapper';
 
 import 'semantic-ui-css/semantic.min.css';
 import 'react-toastify/dist/ReactToastify.css';
+import 'react-circular-progressbar/dist/styles.css';
 
 const auth0Credentials = getAuth0Credentials();
 

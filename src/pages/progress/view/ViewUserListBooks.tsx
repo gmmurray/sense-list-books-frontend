@@ -1,6 +1,6 @@
 import { Fragment, useCallback } from 'react';
 import { FC } from 'react';
-import { Progress } from 'semantic-ui-react';
+import { Grid, Header } from 'semantic-ui-react';
 import SegmentPlaceholder from 'src/library/components/shared/SegmentPlaceholder';
 import {
   CreateBULIDto,
@@ -17,9 +17,13 @@ import {
   getListOwnedProgressValue,
   getListReadingProgressValue,
   getListRatingProgressValue,
+  getProgressColor,
 } from 'src/library/utilities/listProgress';
 import { removeHTMLTags } from 'src/library/utilities/stringHelpers';
 import BULICard from './BULICard';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+
+import './styles.scss';
 
 type ViewUserListBooksProps = {
   items: ItemMatch[];
@@ -88,8 +92,13 @@ const ViewUserListBooks: FC<ViewUserListBooksProps> = ({
     .filter(item => item.userItem !== null)
     .map(item => item.userItem!);
   const readingProgress = getListReadingProgressValue(userItems);
+  const readingProgressText = `${Math.round(
+    (readingProgress / items.length) * 100,
+  )}%`;
   const ownedProgress = getListOwnedProgressValue(userItems);
+  const ownedProgressText = `${ownedProgress}/${items.length}`;
   const ratingProgress = getListRatingProgressValue(userItems);
+  const ratingProgressText = `${ratingProgress}/${items.length}`;
 
   if (items.length === 0) {
     return (
@@ -103,28 +112,44 @@ const ViewUserListBooks: FC<ViewUserListBooksProps> = ({
 
   return (
     <Fragment>
-      <Progress
-        value={readingProgress}
-        total={items.length}
-        progress={readingProgress > 0 ? 'percent' : undefined}
-        indicating={readingProgress > 0}
-        label="Reading progress"
-        precision={readingProgress > 0 ? 0 : undefined}
-      />
-      <Progress
-        value={ownedProgress}
-        total={items.length}
-        progress={ownedProgress > 0 ? 'ratio' : undefined}
-        indicating={ownedProgress > 0}
-        label="Books owned"
-      />
-      <Progress
-        value={ratingProgress}
-        total={items.length}
-        progress={ratingProgress > 0 ? 'ratio' : undefined}
-        indicating={ratingProgress > 0}
-        label="Books rated"
-      />
+      <Grid columns={3} stackable textAlign="center">
+        <Grid.Column textAlign="center" className="user-list-circular-progress">
+          <CircularProgressbar
+            value={readingProgress}
+            text={readingProgressText}
+            maxValue={items.length}
+            styles={buildStyles({
+              pathColor: getProgressColor(readingProgress, items.length),
+              textColor: 'black',
+            })}
+          />
+          <Header size="small" content="Reading progress" />
+        </Grid.Column>
+        <Grid.Column textAlign="center" className="user-list-circular-progress">
+          <CircularProgressbar
+            value={ownedProgress}
+            text={ownedProgressText}
+            maxValue={items.length}
+            styles={buildStyles({
+              pathColor: getProgressColor(ownedProgress, items.length),
+              textColor: 'black',
+            })}
+          />
+          <Header size="small" content="Books owned" />
+        </Grid.Column>
+        <Grid.Column textAlign="center" className="user-list-circular-progress">
+          <CircularProgressbar
+            value={ratingProgress}
+            text={ratingProgressText}
+            maxValue={items.length}
+            styles={buildStyles({
+              pathColor: getProgressColor(ratingProgress, items.length),
+              textColor: 'black',
+            })}
+          />
+          <Header size="small" content="Books rated" />
+        </Grid.Column>
+      </Grid>
       {items
         .sort((a, b) => a.book.ordinal - b.book.ordinal)
         .map(match => {
