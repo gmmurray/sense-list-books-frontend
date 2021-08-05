@@ -1,22 +1,20 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
 import { Button, Container, Header, Menu, Transition } from 'semantic-ui-react';
 import * as usersApi from 'src/library/api/backend/users';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import { ACTIVE_LISTS_COUNT } from 'src/library/constants/activity';
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import { BookUserList } from 'src/library/entities/userList/BookUserList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 import { appRoutes } from 'src/main/routes';
 import ActiveLists from './ActiveLists';
 import RecentUserActivity from 'src/library/components/users/recentActivity/RecentUserActivity';
 import { useAppContext } from 'src/main/context/appContext';
+import { showErrorToast } from 'src/library/components/layout/ToastifyWrapper';
 
 const Home = () => {
   const auth = useAuth0();
-  const alert = useAlert();
   const { currentProfile: userProfile } = useAppContext() || {};
 
   const [showActiveLists, setShowActiveLists] = useState(true);
@@ -33,11 +31,11 @@ const Home = () => {
       const data = await usersApi.getActiveLists(auth, ACTIVE_LISTS_COUNT);
       setActiveLists(data);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setActiveListsLoading(false);
     }
-  }, [auth, alert]);
+  }, [auth]);
 
   useEffect(() => {
     getUserLists();

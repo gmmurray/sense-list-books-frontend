@@ -1,7 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Fragment, useCallback, useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
 import { useForm } from 'react-hook-form';
 import { Link, Redirect, useHistory, useParams } from 'react-router-dom';
 import arrayMove from 'array-move';
@@ -21,7 +20,6 @@ import {
 import * as listsApi from 'src/library/api/backend/lists';
 import * as usersApi from 'src/library/api/backend/users';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import { BookList } from 'src/library/entities/list/BookList';
 import { BookListItem } from 'src/library/entities/listItem/BookListItem';
 import { appRoutes } from 'src/main/routes';
@@ -35,6 +33,10 @@ import {
 } from 'src/library/entities/listItem/ListItem';
 import { onSortEndParams } from 'src/library/types/reactSortableHoc';
 import { UserProfile } from 'src/library/entities/user/UserProfile';
+import {
+  showErrorToast,
+  showSuccessToast,
+} from 'src/library/components/layout/ToastifyWrapper';
 
 type ViewListParams = {
   listId: string;
@@ -42,7 +44,6 @@ type ViewListParams = {
 
 const ViewList = () => {
   const auth = useAuth0();
-  const alert = useAlert();
   let history = useHistory();
   const { listId } = useParams<ViewListParams>();
   const [list, setList] = useState<BookList | null>(null);
@@ -81,11 +82,11 @@ const ViewList = () => {
       const data = await listsApi.getList(auth, listId);
       setList(data);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setListLoading(false);
     }
-  }, [setListLoading, setList, alert, auth, listId]);
+  }, [setListLoading, setList, auth, listId]);
 
   const getOwnerProfile = useCallback(async () => {
     setOwnerProfileLoading(true);
@@ -93,11 +94,11 @@ const ViewList = () => {
       const data = await usersApi.getUserProfile(auth, list!.ownerId);
       setOwnerProfile(data);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setOwnerProfileLoading(false);
     }
-  }, [setOwnerProfileLoading, list, setOwnerProfile, alert, auth]);
+  }, [setOwnerProfileLoading, list, setOwnerProfile, auth]);
 
   const handleFormSubmit = useCallback(
     async (data: IEditListInputs) => {
@@ -107,14 +108,14 @@ const ViewList = () => {
         await listsApi.updateList(auth, listId, data);
         await getListData();
         setIsEditingForm(false);
-        alert.success('List successfully saved');
+        showSuccessToast('List successfully saved');
       } catch (error) {
         setUpdateError('There was an error saving your changes.');
       } finally {
         setFormUpdateLoading(false);
       }
     },
-    [getListData, setFormUpdateLoading, setUpdateError, alert, auth, listId],
+    [getListData, setFormUpdateLoading, setUpdateError, auth, listId],
   );
 
   const handleFormReset = useCallback(() => {
@@ -143,13 +144,13 @@ const ViewList = () => {
         await deleteBookListItem(auth, listItemId);
         await getListData();
       } catch (error) {
-        alert.error(error.message, defaultErrorTimeout);
+        showErrorToast(error.message);
       } finally {
         setItemDeletionLoading(false);
         setItemToBeDeleted(null);
       }
     },
-    [getListData, setItemDeletionLoading, auth, alert],
+    [getListData, setItemDeletionLoading, auth],
   );
 
   const handleListDeletionClick = useCallback(
@@ -168,10 +169,10 @@ const ViewList = () => {
       setListDeletionLoading(false);
       history.push(appRoutes.progress.start.path);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
       setListDeletionLoading(false);
     }
-  }, [alert, auth, history, listId]);
+  }, [auth, history, listId]);
 
   const handleItemSort = useCallback(
     ({ oldIndex, newIndex }: onSortEndParams) => {
@@ -202,7 +203,7 @@ const ViewList = () => {
         await updateListItemOrdinals(auth, data);
         await getListData();
       } catch (error) {
-        alert.error(error.messge, defaultErrorTimeout);
+        showErrorToast(error.message);
       } finally {
         setOrdinalChangesLoading(false);
         setItemOrdinalChanges([]);
@@ -210,7 +211,6 @@ const ViewList = () => {
       }
     }
   }, [
-    alert,
     auth,
     getListData,
     itemOrdinalChanges,

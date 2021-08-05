@@ -1,6 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
 import { Redirect, useHistory, useLocation, useParams } from 'react-router-dom';
 import { UserProfile } from 'src/library/entities/user/UserProfile';
 import * as usersApi from 'src/library/api/backend/users';
@@ -8,7 +7,6 @@ import * as listsApi from 'src/library/api/backend/lists';
 import { appRoutes } from 'src/main/routes';
 import { Header, Loader, Menu, Segment, Tab } from 'semantic-ui-react';
 
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import ActivityTab from './tabs/ActivityTab';
 import SegmentPlaceholder from 'src/library/components/shared/SegmentPlaceholder';
 import { UserStatistics } from 'src/library/entities/user/UserStatistics';
@@ -19,6 +17,7 @@ import { DataTotalResponse } from 'src/library/types/responseWrappers';
 
 import './styles.scss';
 import SettingsTab from './tabs/SettingsTab';
+import { showErrorToast } from 'src/library/components/layout/ToastifyWrapper';
 
 type ViewUserProfileProps = {
   userId: string;
@@ -26,7 +25,6 @@ type ViewUserProfileProps = {
 
 const ViewUserProfile: FC<ViewUserProfileProps> = () => {
   const auth = useAuth0();
-  const alert = useAlert();
   const history = useHistory();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -56,11 +54,11 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
       const data = await usersApi.getUserProfile(auth, userId);
       setUserProfile(state => ({ ...state, data }));
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setUserProfile(state => ({ ...state, loading: false }));
     }
-  }, [alert, auth, userId]);
+  }, [auth, userId]);
 
   const getUserStatistics = useCallback(async () => {
     setUserStatistics(state => ({ ...state, loading: true }));
@@ -68,11 +66,11 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
       const data = await usersApi.getUserStats(auth, userId);
       setUserStatistics(state => ({ ...state, data }));
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setUserStatistics(state => ({ ...state, loading: false }));
     }
-  }, [alert, auth, userId]);
+  }, [auth, userId]);
 
   const getUserLists = useCallback(async () => {
     setUserLists(state => ({ ...state, loading: true }));
@@ -81,11 +79,11 @@ const ViewUserProfile: FC<ViewUserProfileProps> = () => {
       const data = await listsApi.getPublicListsByQuery(auth, query);
       setUserLists(state => ({ ...state, data }));
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setUserLists(state => ({ ...state, loading: false }));
     }
-  }, [alert, auth, userId]);
+  }, [auth, userId]);
 
   useEffect(() => {
     if (userId) {

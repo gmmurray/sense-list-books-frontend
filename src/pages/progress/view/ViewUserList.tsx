@@ -1,7 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { Fragment, useCallback, useEffect } from 'react';
 import { useState } from 'react';
-import { useAlert } from 'react-alert';
 import { Redirect, useHistory, useParams } from 'react-router-dom';
 import {
   Segment,
@@ -27,7 +26,6 @@ import { appRoutes } from 'src/main/routes';
 import * as userListApi from 'src/library/api/backend/userLists';
 import * as buliApi from 'src/library/api/backend/buli';
 import * as usersApi from 'src/library/api/backend/users';
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import { BookReadingStatus } from 'src/library/types/BookReadingStatus';
 import ViewUserListBooks from './ViewUserListBooks';
@@ -35,12 +33,12 @@ import { BookListItem } from 'src/library/entities/listItem/BookListItem';
 import { ItemMatch } from 'src/library/types/ItemMatch';
 import { UserProfile } from 'src/library/entities/user/UserProfile';
 import UserProfilePopup from 'src/library/components/users/UserProfilePopup';
+import { showErrorToast } from 'src/library/components/layout/ToastifyWrapper';
 
 type ViewUserListParams = { userListId: string };
 
 const ViewUserList = () => {
   const auth = useAuth0();
-  const alert = useAlert();
   const history = useHistory();
   const { userListId } = useParams<ViewUserListParams>();
   const [userList, setUserList] = useState<PopulatedBookUserList | null>(null);
@@ -89,11 +87,11 @@ const ViewUserList = () => {
       );
       setBuliUpdates(defaultBuliUpdates);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setUserListLoading(false);
     }
-  }, [setUserListLoading, auth, userListId, alert]);
+  }, [setUserListLoading, auth, userListId]);
 
   const getOwnerProfile = useCallback(async () => {
     setOwnerProfileLoading(true);
@@ -101,11 +99,11 @@ const ViewUserList = () => {
       const data = await usersApi.getUserProfile(auth, userList!.list!.ownerId);
       setOwnerProfile(data);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setOwnerProfileLoading(false);
     }
-  }, [setOwnerProfileLoading, userList, setOwnerProfile, alert, auth]);
+  }, [setOwnerProfileLoading, userList, setOwnerProfile, auth]);
 
   useEffect(() => {
     if (userList) {
@@ -133,10 +131,10 @@ const ViewUserList = () => {
       setDeletionLoading(false);
       history.push(appRoutes.progress.start.path);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
       setDeletionLoading(false);
     }
-  }, [alert, auth, history, userListId]);
+  }, [auth, history, userListId]);
 
   const handleEditClick = useCallback(() => {
     if (
@@ -164,14 +162,11 @@ const ViewUserList = () => {
         notes: update.notes,
       });
     } catch (error) {
-      alert.error(
-        'There was an error updating your notes',
-        defaultErrorTimeout,
-      );
+      showErrorToast('There was an error updating your notes');
     } finally {
       setNoteUpdateLoading(false);
     }
-  }, [userList, setNoteUpdateLoading, noteUpdate, auth, userListId, alert]);
+  }, [userList, setNoteUpdateLoading, noteUpdate, auth, userListId]);
 
   const handleBuliUpdateSave = useCallback(
     async (buliId: string, updates: PatchBULIDto) => {
@@ -197,16 +192,13 @@ const ViewUserList = () => {
             ...buliUpdates,
             [buliId]: userList.userListItems[updatedIndex],
           });
-          alert.error(
-            'There was an error updating the item',
-            defaultErrorTimeout,
-          );
+          showErrorToast('There was an error updating the item');
         } finally {
           setBuliUpdateLoading(null);
         }
       }
     },
-    [userList, buliUpdates, auth, alert],
+    [userList, buliUpdates, auth],
   );
 
   const handleBuliCreate = useCallback(
@@ -236,16 +228,13 @@ const ViewUserList = () => {
             setUserList({ ...userList, userListItems: newBuliState });
           }
         } catch (error) {
-          alert.error(
-            'There was an error saving your progress',
-            defaultErrorTimeout,
-          );
+          showErrorToast('There was an error saving your progress');
         } finally {
           setBuliCreateLoading(null);
         }
       }
     },
-    [userList, userListId, auth, alert],
+    [userList, userListId, auth],
   );
 
   useEffect(() => {

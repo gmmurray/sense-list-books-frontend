@@ -1,12 +1,11 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Fragment } from 'react';
-import { useAlert } from 'react-alert';
 import { Container, Tab, TabPaneProps, TabProps } from 'semantic-ui-react';
 import { SemanticShorthandItem } from 'semantic-ui-react/dist/commonjs/generic';
 import * as listsApi from 'src/library/api/backend/lists';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
+import { showErrorToast } from 'src/library/components/layout/ToastifyWrapper';
 import { BookList, QueryBookListDto } from 'src/library/entities/list/BookList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 import { appRoutes } from 'src/main/routes';
@@ -15,7 +14,6 @@ import PublicLists from './PublicLists';
 
 const StartList = () => {
   const auth = useAuth0();
-  const alert = useAlert();
   const [activeIndex, setActiveIndex] = useState(0);
   const [myLists, setMyLists] = useState(
     new DataTotalResponse<BookList>([], 0),
@@ -45,11 +43,11 @@ const StartList = () => {
       const data = await listsApi.getPrivateLists(auth);
       setMyLists(data);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setMyListsLoading(false);
     }
-  }, [setMyListsLoading, setMyLists, alert, auth]);
+  }, [setMyListsLoading, setMyLists, auth]);
 
   const getPublicLists = useCallback(
     async (searchTerm: string) => {
@@ -59,12 +57,12 @@ const StartList = () => {
         const data = await listsApi.getPublicListsByQuery(auth, query);
         setPublicLists(data);
       } catch (error) {
-        alert.error(error.message, defaultErrorTimeout);
+        showErrorToast(error.message);
       } finally {
         setPublicListsLoading(false);
       }
     },
-    [setPublicListsLoading, auth, setPublicLists, alert],
+    [setPublicListsLoading, auth, setPublicLists],
   );
 
   useEffect(() => {

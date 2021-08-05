@@ -12,15 +12,14 @@ import * as listsApi from 'src/library/api/backend/lists';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useHistory } from 'react-router-dom';
 import { appRoutes } from 'src/main/routes';
-import { useAlert } from 'react-alert';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import WrappedTextArea from 'src/library/components/form/WrappedTextArea';
 
 import './style.scss';
+import { showSuccessToast } from 'src/library/components/layout/ToastifyWrapper';
 
 const NewList = () => {
   const auth = useAuth0();
-  const alert = useAlert();
   let history = useHistory();
   const [loading, setLoading] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -35,7 +34,7 @@ const NewList = () => {
       const result = await listsApi.createList(auth, data);
       if (result) {
         const { id } = result;
-        alert.success('List successfully created');
+        showSuccessToast('List successfully created');
         history.push(appRoutes.lists.view.getDynamicPath!(id));
       }
     } catch (error) {

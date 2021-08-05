@@ -22,8 +22,8 @@ import {
   newListItemModalPageState,
   newListItemModalSearchState,
 } from './helpers';
-import { useAlert } from 'react-alert';
 import SelectedView from './SelectedView';
+import { showSuccessToast } from 'src/library/components/layout/ToastifyWrapper';
 
 type NewListItemModalProps = {
   open: boolean;
@@ -47,7 +47,6 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
   excludedBookIds,
 }) => {
   const auth = useAuth0();
-  const alert = useAlert();
   const [selectedBook, setSelectedBook] = useState<GoogleApiBook | null>(null);
   const [search, setSearch] =
     useState<newListItemModalSearchState>(DEFAULT_SEARCH_STATE);
@@ -199,7 +198,7 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
             ordinal: newOrdinal,
           };
           await listItemApi.createBookListItem(auth, req);
-          alert.success('Item successfully added');
+          showSuccessToast('Item successfully added');
 
           if (continueAdding) {
             handleReset();
@@ -219,7 +218,6 @@ const NewListItemModal: FC<NewListItemModalProps> = ({
       listId,
       newOrdinal,
       auth,
-      alert,
       handleReset,
       onNewOrdinalChange,
       handleClose,

@@ -2,12 +2,12 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { LocationState } from 'history';
 import { FC, Fragment, useState } from 'react';
-import { useAlert } from 'react-alert';
 import { useForm } from 'react-hook-form';
 import { Redirect, RouteComponentProps, useHistory } from 'react-router-dom';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import * as userApi from 'src/library/api/backend/users';
 import WrappedTextInput from 'src/library/components/form/WrappedTextInput';
+import { showSuccessToast } from 'src/library/components/layout/ToastifyWrapper';
 import { useAppContext } from 'src/main/context/appContext';
 import { appRoutes } from 'src/main/routes';
 import { IRegisterInputs, registerSchema } from './formSchema';
@@ -16,7 +16,6 @@ const RegisterUser: FC<RouteComponentProps<{}, any, LocationState | any>> = ({
   location,
 }) => {
   const auth = useAuth0();
-  const alert = useAlert();
   const { isUserRegistered } = useAppContext() || {};
   let history = useHistory();
 
@@ -35,7 +34,7 @@ const RegisterUser: FC<RouteComponentProps<{}, any, LocationState | any>> = ({
       const dto = { ...data, authId: auth.user.sub };
       await userApi.registerUser(auth, dto);
 
-      alert.success('Successfully registered!');
+      showSuccessToast('Successfully registered!');
       history.push(redirectPath);
       window.location.reload();
     } catch (error) {

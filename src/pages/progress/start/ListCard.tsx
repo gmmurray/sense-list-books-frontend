@@ -7,8 +7,7 @@ import { CreateUserListDto } from 'src/library/entities/userList/UserList';
 import { appRoutes } from 'src/main/routes';
 import * as userListApi from 'src/library/api/backend/userLists';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useAlert } from 'react-alert';
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
+import { showErrorToast } from 'src/library/components/layout/ToastifyWrapper';
 
 type ListCardProps = {
   list: BookList;
@@ -17,7 +16,6 @@ type ListCardProps = {
 const ListCard: FC<ListCardProps> = ({ list }) => {
   const auth = useAuth0();
   const history = useHistory();
-  const alert = useAlert();
   const { id, title, description, isPublic, category, bookListItems } = list;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,11 +28,11 @@ const ListCard: FC<ListCardProps> = ({ list }) => {
         history.push(appRoutes.progress.view.getDynamicPath!(result.id));
       }
     } catch (error) {
-      alert.error('There was an error starting that list', defaultErrorTimeout);
+      showErrorToast('There was an error starting that list');
     } finally {
       setIsLoading(false);
     }
-  }, [setIsLoading, history, auth, alert, id]);
+  }, [setIsLoading, history, auth, id]);
 
   return (
     <Card raised fluid>

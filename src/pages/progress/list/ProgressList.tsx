@@ -1,12 +1,10 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { Fragment, useCallback, useEffect, useState } from 'react';
-import { useAlert } from 'react-alert';
 import BreadcrumbWrapper from 'src/library/components/layout/BreadcrumbWrapper';
 import { BookUserList } from 'src/library/entities/userList/BookUserList';
 import { DataTotalResponse } from 'src/library/types/responseWrappers';
 import { appRoutes } from 'src/main/routes';
 import * as userListsApi from 'src/library/api/backend/userLists';
-import { defaultErrorTimeout } from 'src/library/constants/alertOptions';
 import { syncSearch } from 'src/library/utilities/search';
 import { BookList } from 'src/library/entities/list/BookList';
 import AllUserLists from './AllUserLists';
@@ -15,12 +13,12 @@ import {
   filterBookUserLists,
   filterOptions,
 } from './helpers';
+import { showErrorToast } from 'src/library/components/layout/ToastifyWrapper';
 
 const searchableFields = ['title', 'description', 'category'];
 
 const ProgressList = () => {
   const auth = useAuth0();
-  const alert = useAlert();
 
   const [allUserLists, setAllUserLists] = useState<
     DataTotalResponse<BookUserList>
@@ -37,11 +35,11 @@ const ProgressList = () => {
       const data = await userListsApi.getAllUserLists(auth);
       setAllUserLists(data);
     } catch (error) {
-      alert.error(error.message, defaultErrorTimeout);
+      showErrorToast(error.message);
     } finally {
       setAllUserListsLoading(false);
     }
-  }, [alert, auth]);
+  }, [auth]);
 
   useEffect(() => {
     getUserLists();

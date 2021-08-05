@@ -2,15 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider as AlertProvider } from 'react-alert';
-
 import { getAuth0Credentials } from './main/config/startupConfig';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import AlertTemplate from './library/components/layout/AlertTemplate';
-import alertOptions from './library/constants/alertOptions';
+import { ToastifyWrapper } from './library/components/layout/ToastifyWrapper';
 
 import 'semantic-ui-css/semantic.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 const auth0Credentials = getAuth0Credentials();
 
@@ -24,9 +22,8 @@ ReactDOM.render(
   >
     <React.StrictMode>
       <BrowserRouter>
-        <AlertProvider template={AlertTemplate} {...alertOptions}>
-          <App />
-        </AlertProvider>
+        <App />
+        <ToastifyWrapper />
       </BrowserRouter>
     </React.StrictMode>
   </Auth0Provider>,
